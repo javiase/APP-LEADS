@@ -53,6 +53,8 @@ def init_db():
                 mentor_store TEXT,
                 current_status TEXT NOT NULL,
                 pipeline_result TEXT NOT NULL DEFAULT 'active',
+                last_status_before_result TEXT DEFAULT '',
+                instagram_username TEXT DEFAULT '',
                 comments TEXT DEFAULT '',
                 ab_variant TEXT DEFAULT '',
                 action_label TEXT DEFAULT '',
@@ -79,6 +81,13 @@ def init_db():
             );
             """
         )
+
+        # Migrations for existing databases
+        columns = [row["name"] for row in db.execute("PRAGMA table_info(leads)").fetchall()]
+        if "last_status_before_result" not in columns:
+            db.execute("ALTER TABLE leads ADD COLUMN last_status_before_result TEXT DEFAULT ''")
+        if "instagram_username" not in columns:
+            db.execute("ALTER TABLE leads ADD COLUMN instagram_username TEXT DEFAULT ''")
 
 
 def seed_db():

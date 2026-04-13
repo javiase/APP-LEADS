@@ -24,6 +24,8 @@ def serialize_lead(lead):
         "mentor_store": lead["mentor_store"],
         "current_status": lead["current_status"],
         "pipeline_result": lead["pipeline_result"],
+        "last_status_before_result": lead.get("last_status_before_result", ""),
+        "instagram_username": lead.get("instagram_username", ""),
         "comments": lead["comments"],
         "ab_variant": lead["ab_variant"],
         "action_label": lead["action_label"],
@@ -129,6 +131,8 @@ def create_lead(payload):
         "mentor_store": payload.get("mentor_store", "").strip(),
         "current_status": payload["current_status"],
         "pipeline_result": payload.get("pipeline_result", "active"),
+        "last_status_before_result": payload.get("last_status_before_result", "").strip(),
+        "instagram_username": payload.get("instagram_username", "").strip(),
         "comments": payload.get("comments", "").strip(),
         "ab_variant": payload.get("ab_variant", "").strip(),
         "action_label": payload.get("action_label", "").strip(),
@@ -142,8 +146,9 @@ def create_lead(payload):
             """
             INSERT INTO leads (
                 name, handle, mentor_store, current_status, pipeline_result,
+                last_status_before_result, instagram_username,
                 comments, ab_variant, action_label, action_due_at, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data["name"],
@@ -151,6 +156,8 @@ def create_lead(payload):
                 data["mentor_store"],
                 data["current_status"],
                 data["pipeline_result"],
+                data["last_status_before_result"],
+                data["instagram_username"],
                 data["comments"],
                 data["ab_variant"],
                 data["action_label"],
@@ -194,12 +201,21 @@ def update_lead(lead_id, payload):
         or merged.get("action_due_at") != existing["action_due_at"]
     )
 
+    # When marking as won or lost, save the current status so we know where they were
+    last_status = existing.get("last_status_before_result", "")
+    if result_changed and merged["pipeline_result"] in ("won", "lost"):
+        last_status = existing["current_status"]
+    elif result_changed and merged["pipeline_result"] == "active":
+        last_status = ""
+
     with get_db() as db:
         db.execute(
             """
             UPDATE leads
             SET name = ?, handle = ?, mentor_store = ?, current_status = ?,
-                pipeline_result = ?, comments = ?, ab_variant = ?,
+                pipeline_result = ?, last_status_before_result = ?,
+                instagram_username = ?,
+                comments = ?, ab_variant = ?,
                 action_label = ?, action_due_at = ?, updated_at = ?
             WHERE id = ?
             """,
@@ -209,6 +225,8 @@ def update_lead(lead_id, payload):
                 merged.get("mentor_store", "").strip(),
                 merged["current_status"],
                 merged["pipeline_result"],
+                last_status,
+                merged.get("instagram_username", "").strip(),
                 merged.get("comments", "").strip(),
                 merged.get("ab_variant", "").strip(),
                 merged.get("action_label", "").strip(),

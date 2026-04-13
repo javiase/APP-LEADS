@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Flow Control</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="brand-mark">LF</span>
+                <div>
+                    <p class="eyebrow">CRM de seguimiento</p>
+                    <h1>Lead Flow Control</h1>
+                </div>
+            </div>
+
+            <nav class="menu">
+                <button class="menu-link is-active" data-section="dashboard">Dashboard</button>
+                <button class="menu-link" data-section="leads">Leads</button>
+                <button class="menu-link" data-section="history">Actividad</button>
+                <button class="menu-link" data-section="playbook">Playbook</button>
+            </nav>
+
+            <section class="sidebar-card" id="sidebar-focus">
+                <p class="eyebrow">Siguiente accion</p>
+                <div id="focus-content">
+                    <strong>Cargando...</strong>
+                </div>
+            </section>
+        </aside>
+
+        <main class="content">
+            <header class="hero">
+                <div>
+                    <p class="eyebrow">Seguimiento centralizado</p>
+                    <h2>Visualiza atascos, fugas del funnel y rendimiento de plantillas sin depender de Notion.</h2>
+                </div>
+                <button class="primary-button" id="open-create-modal">Nuevo lead</button>
+            </header>
+
+            <section class="section is-visible" id="section-dashboard">
+                <div class="stats-grid" id="summary-cards"></div>
+
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <p class="eyebrow">Cuellos de botella</p>
+                                <h3>Tiempo medio por estado</h3>
+                            </div>
+                        </div>
+                        <div class="metric-table" id="time-in-status"></div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <p class="eyebrow">Fugas del proceso</p>
+                                <h3>Donde se caen o se estancan</h3>
+                            </div>
+                        </div>
+                        <div class="metric-table" id="drop-offs"></div>
+                    </section>
+                </div>
+
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <p class="eyebrow">A/B test</p>
+                                <h3>Efectividad por plantilla</h3>
+                            </div>
+                        </div>
+                        <div class="metric-table" id="template-performance"></div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <p class="eyebrow">Distribucion</p>
+                                <h3>Leads por estado</h3>
+                            </div>
+                        </div>
+                        <div class="status-bars" id="status-distribution"></div>
+                    </section>
+                </div>
+            </section>
+
+            <section class="section" id="section-leads">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Gestion completa</p>
+                            <h3>Leads</h3>
+                        </div>
+                        <input type="search" id="lead-search" placeholder="Buscar por nombre, handle o tienda">
+                    </div>
+                    <div class="lead-board">
+                        <div class="lead-list" id="lead-list"></div>
+                        <div class="lead-detail" id="lead-detail">
+                            <div class="empty-state">
+                                <h4>Selecciona un lead</h4>
+                                <p>Aqui veras su ficha completa, proxima accion e historial de estados.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="section-history">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Historial</p>
+                            <h3>Ultima actividad registrada</h3>
+                        </div>
+                    </div>
+                    <div class="activity-list" id="activity-list"></div>
+                </div>
+            </section>
+
+            <section class="section" id="section-playbook">
+                <div class="panel-grid">
+                    <section class="panel">
+                        <p class="eyebrow">Sugerencia</p>
+                        <h3>Secciones que merece la pena mantener</h3>
+                        <ul class="playbook-list">
+                            <li>Controlar el lead desde la app para registrar cambios y medir tiempos reales por estado.</li>
+                            <li>Marcar resultado final como ganado, perdido o activo para saber donde falla el proceso.</li>
+                            <li>Usar la siguiente accion con fecha para que el CRM te saque trabajo pendiente sin revisar Notion.</li>
+                            <li>Medir plantilla A/B por conversion final y no solo por aperturas o respuestas sueltas.</li>
+                        </ul>
+                    </section>
+                    <section class="panel">
+                        <p class="eyebrow">Siguiente paso tecnico</p>
+                        <h3>Integraciones faciles despues</h3>
+                        <ul class="playbook-list">
+                            <li>Importar leads desde CSV exportado de Notion.</li>
+                            <li>Conectar WhatsApp, Instagram o email para registrar mensajes enviados.</li>
+                            <li>Automatizar avisos diarios de acciones vencidas.</li>
+                            <li>Separar plantillas por canal y por tipo de lead.</li>
+                        </ul>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <dialog class="modal" id="lead-modal">
+        <form class="modal-card" id="lead-form">
+            <div class="modal-header">
+                <div>
+                    <p class="eyebrow">Formulario</p>
+                    <h3 id="modal-title">Nuevo lead</h3>
+                </div>
+                <button type="button" class="ghost-button" id="close-modal">Cerrar</button>
+            </div>
+
+            <div class="form-grid">
+                <label>
+                    <span>Nombre</span>
+                    <input name="name" required>
+                </label>
+                <label>
+                    <span>Handle</span>
+                    <input name="handle">
+                </label>
+                <label>
+                    <span>Mentor/Tienda</span>
+                    <input name="mentor_store">
+                </label>
+                <label>
+                    <span>Estado</span>
+                    <select name="current_status" id="status-select" required></select>
+                </label>
+                <label>
+                    <span>Resultado</span>
+                    <select name="pipeline_result">
+                        <option value="active">Activo</option>
+                        <option value="won">Ganado</option>
+                        <option value="lost">Perdido</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Plantilla A/B</span>
+                    <input name="ab_variant" placeholder="Plantilla A">
+                </label>
+                <label class="wide">
+                    <span>Siguiente accion</span>
+                    <input name="action_label" placeholder="Llamar, enviar caso de exito, cerrar propuesta...">
+                </label>
+                <label>
+                    <span>Fecha de accion</span>
+                    <input type="datetime-local" name="action_due_at">
+                </label>
+                <label class="wide">
+                    <span>Comentarios</span>
+                    <textarea name="comments" rows="4"></textarea>
+                </label>
+            </div>
+
+            <input type="hidden" name="id">
+
+            <div class="modal-actions">
+                <button type="button" class="ghost-button" id="reset-form">Limpiar</button>
+                <button type="submit" class="primary-button">Guardar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
